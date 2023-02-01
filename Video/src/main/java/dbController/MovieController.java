@@ -82,11 +82,33 @@ public class MovieController {
         return true;
     }
 
+    public boolean insertCategory(MovieDTO movieDTO){
+        String query = "INSERT INTO  `film_category` (`film_id`,`film_category`)VALUES (?,?)";
+
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(query);
+
+            pstmt.setInt(1,movieDTO.getFilm_id());
+            pstmt.setInt(2,movieDTO.getCategory_id());
+
+
+            pstmt.executeUpdate();
+            pstmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+
+
     public void update(MovieDTO movieDTO){
         String query = "UPDATE `film`" +
                 " SET `title` = ?, `description` =?, `release_year`=?," +
                 "`rental_duration`=?,`rental_rate`=?,`rating`=?  ,`special_features`=?," +
-                "`last_update` = NOW() WHERE `film_id` = ?";
+                "name = ?,`last_update` = NOW() WHERE `film_id` = ?";
         try {
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setString(1, movieDTO.getTitle());
@@ -96,8 +118,8 @@ public class MovieController {
             pstmt.setInt(5,movieDTO.getRental_rate());
             pstmt.setString(6,movieDTO.getRating());
             pstmt.setString(7,movieDTO.getSpecial_features());
-            pstmt.setInt(8,movieDTO.getFilm_id());
-
+            pstmt.setString(8,movieDTO.getCategory());
+            pstmt.setInt(9,movieDTO.getFilm_id());
 
 
             pstmt.executeUpdate();
@@ -122,9 +144,12 @@ public class MovieController {
     public ArrayList<MovieDTO> selectAll(){
         ArrayList<MovieDTO> list = new ArrayList<>();
 
-        String query = "SELECT `film`.* , group_concat(first_name,\" \",last_name) as actor_name FROM `film`" +
+        String query = "SELECT * , group_concat(first_name,\" \",last_name) as actor_name FROM `film`" +
                 "JOIN `film_actor` ON  `film`.`film_id` = `film_actor`.`film_id`" +
                 "JOIN `actor` ON  `film_actor`.`actor_id` = `actor`.`actor_id` " +
+                "JOIN `film_category` ON  `film_category`.`film_id` = `film`.`film_id`" +
+                "JOIN `category` ON  `category`.`category_id` = `film_category`.`category_id` " +
+
                 "group by  `film`.`film_id`  ORDER BY  `film`.`film_id` ASC ";
 
         try {
@@ -144,6 +169,7 @@ public class MovieController {
                 m.setRating(resultSet.getString("special_features"));
                 m.setLast_update(resultSet.getTimestamp("last_update"));
                 m.setActor_Name(resultSet.getString("actor_name"));
+                m.setCategory(resultSet.getString("name"));
 
 
                 list.add(m);
@@ -159,9 +185,11 @@ public class MovieController {
 
     public MovieDTO selectOne(int id){
         MovieDTO m = null;
-        String query = "SELECT `film`.* , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
+        String query = "SELECT * , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
                 "JOIN `film_actor` ON  `film`.`film_id` = `film_actor`.`film_id`" +
                 "JOIN `actor` ON  `film_actor`.`actor_id` = `actor`.`actor_id` " +
+                "JOIN `film_category` ON  `film_category`.`film_id` = `film`.`film_id`" +
+                "JOIN `category` ON  `category`.`category_id` = `film_category`.`category_id` " +
                 "WHERE `film`.`film_id` = ? group by `film`.`film_id` ";
         try {
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -183,6 +211,7 @@ public class MovieController {
                 m.setRating(resultSet.getString("special_features"));
                 m.setLast_update(resultSet.getTimestamp("last_update"));
                 m.setActor_Name(resultSet.getString("actor_name"));
+                m.setCategory(resultSet.getString("name"));
 
             }
             pstmt.close();
@@ -200,9 +229,11 @@ public class MovieController {
     public ArrayList<MovieDTO> selectTitle(String title) {
         ArrayList<MovieDTO> list = new ArrayList<>();
 
-        String query = "SELECT `film`.* , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
+        String query = "SELECT * , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
                 "JOIN `film_actor` ON  `film`.`film_id` = `film_actor`.`film_id`" +
                 "JOIN `actor` ON  `film_actor`.`actor_id` = `actor`.`actor_id` " +
+                "JOIN `film_category` ON  `film_category`.`film_id` = `film`.`film_id`" +
+                "JOIN `category` ON  `category`.`category_id` = `film_category`.`category_id` " +
                 "WHERE  `title` = ?"+
                 "group by  `film`.`film_id`  ";
 
@@ -222,6 +253,7 @@ public class MovieController {
                 m.setRating(resultSet.getString("rating"));
                 m.setSpecial_features(resultSet.getString("special_features"));
                 m.setActor_Name(resultSet.getString("actor_name"));
+                m.setCategory(resultSet.getString("name"));
 
                 list.add(m);
             }
@@ -238,11 +270,12 @@ public class MovieController {
     public ArrayList<MovieDTO> selectName(String actor_name) {
         ArrayList<MovieDTO> list = new ArrayList<>();
 
-        String query = "SELECT `film`.* , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
+        String query = "SELECT * , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
                 "JOIN `film_actor` ON  `film`.`film_id` = `film_actor`.`film_id`" +
                 "JOIN `actor` ON  `film_actor`.`actor_id` = `actor`.`actor_id` " +
-                "group by  `film`.`film_id`  "+"HAVING `actor_name` Like ? "
-              ;
+                "JOIN `film_category` ON  `film_category`.`film_id` = `film`.`film_id`" +
+                "JOIN `category` ON  `category`.`category_id` = `film_category`.`category_id` " +
+                "group by  `film`.`film_id`  "+"HAVING `actor_name` Like ? ";
 
         try {
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -262,6 +295,50 @@ public class MovieController {
                 m.setRating(resultSet.getString("rating"));
                 m.setSpecial_features(resultSet.getString("special_features"));
                 m.setActor_Name(resultSet.getString("actor_name"));
+                m.setCategory(resultSet.getString("name"));
+                list.add(m);
+            }
+            pstmt.close();
+            resultSet.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public ArrayList<MovieDTO> selectCategory(String name) {
+        ArrayList<MovieDTO> list = new ArrayList<>();
+
+        String query = "SELECT * , group_concat(first_name,\" \",last_name) as actor_name FROM `film` " +
+                "JOIN `film_actor` ON  `film`.`film_id` = `film_actor`.`film_id`" +
+                "JOIN `actor` ON  `film_actor`.`actor_id` = `actor`.`actor_id` " +
+                "JOIN `film_category` ON  `film_category`.`film_id` = `film`.`film_id`" +
+                "JOIN `category` ON  `category`.`category_id` = `film_category`.`category_id` " +
+                "WHERE  `name` = ?"+
+                "group by  `film`.`film_id`  ";
+
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setString(1,name);
+
+
+
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()){
+                MovieDTO m = new MovieDTO();
+                m.setFilm_id(resultSet.getInt("film_id"));
+                m.setTitle(resultSet.getString("title"));
+                m.setDescription(resultSet.getString("description"));
+                m.setRelease_year(resultSet.getShort("release_year"));
+                m.setRental_duration(resultSet.getInt("Rental_duration"));
+                m.setRental_rate(resultSet.getInt("rental_rate"));
+                m.setRating(resultSet.getString("rating"));
+                m.setSpecial_features(resultSet.getString("special_features"));
+                m.setActor_Name(resultSet.getString("actor_name"));
+                m.setCategory(resultSet.getString("name"));
                 list.add(m);
             }
             pstmt.close();

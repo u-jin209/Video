@@ -1,8 +1,7 @@
 package dbController;
 
-import model.MovieDTO;
-import model.RentalDTO;
 
+import model.RentalDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,22 +41,10 @@ public class RentalController {
             PreparedStatement pstmt = connection.prepareStatement(query);
             ResultSet resultSet = pstmt.executeQuery();
             while (resultSet.next()){
-                MovieDTO m = new MovieDTO();
-                m.setFilm_id(resultSet.getInt("film_id"));
-                m.setTitle(resultSet.getString("title"));
-                m.setDescription(resultSet.getString("description"));
-                m.setRelease_year(resultSet.getShort("release_year"));
-                m.setLanguage_id(resultSet.getInt("language_id"));
-                m.setRental_duration(resultSet.getInt("rental_duration"));
-                m.setRental_rate(resultSet.getInt("rental_rate"));
-                m.setLength(resultSet.getInt("length"));
-                m.setRating(resultSet.getString("rating"));
-                m.setRating(resultSet.getString("special_features"));
-                m.setLast_update(resultSet.getTimestamp("last_update"));
-                m.setActor_Name(resultSet.getString("actor_name"));
+                RentalDTO r = new RentalDTO();
 
 
-                list.add(m);
+                list.add(r);
             }
             pstmt.close();
             resultSet.close();
@@ -68,9 +55,9 @@ public class RentalController {
         return list;
     }
 
-    public MovieDTO selectOne(int id){
+    public RentalDTO selectOne(int id){
         RentalDTO  r = null;
-        String query =
+        String query ="";
         try {
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, id);
@@ -78,19 +65,8 @@ public class RentalController {
             ResultSet resultSet = pstmt.executeQuery();
 
             if(resultSet.next()){
-                m = new MovieDTO();
+                r = new RentalDTO();
 
-                m.setTitle(resultSet.getString("title"));
-                m.setDescription(resultSet.getString("description"));
-                m.setRelease_year(resultSet.getShort("release_year"));
-                m.setLanguage_id(resultSet.getInt("language_id"));
-                m.setRental_duration(resultSet.getInt("rental_duration"));
-                m.setRental_rate(resultSet.getInt("rental_rate"));
-                m.setLength(resultSet.getInt("length"));
-                m.setRating(resultSet.getString("rating"));
-                m.setRating(resultSet.getString("special_features"));
-                m.setLast_update(resultSet.getTimestamp("last_update"));
-                m.setActor_Name(resultSet.getString("actor_name"));
 
             }
             pstmt.close();
@@ -101,6 +77,6 @@ public class RentalController {
             System.out.println("해당 영화는 존재하지 않습니다.");
         }
 
-        return m;
+        return r;
     }
 }

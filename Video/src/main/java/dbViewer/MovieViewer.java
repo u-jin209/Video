@@ -20,6 +20,9 @@ public class MovieViewer {
     private String[] ratingList = {"G", "PG", "PG-13", "R", "NC-17"};
     private String[] special_featuresList={"Trailers", "Commentaries", "Deleted Scenes", "Behind the Scenes"};
 
+    private String[] category ={"Action","Animation","Children","Classics","Comedy","Documentary",
+            "Drama","Family","Foreign","Games","Horror","Music","New","Sci-Fi","Sports","Travel"};
+
     public MovieViewer(ConnectionMaker connectionMaker) {
         SCANNER = new Scanner(System.in);
         connection = connectionMaker.makeConnection();
@@ -64,14 +67,14 @@ public class MovieViewer {
 
     private void searchMenu() {
 
-        String message = "1. 제목으로 검색  2. 배우 이름으로 검색  3. 뒤로 가기";
+        String message = "1. 제목으로 검색  2. 배우 이름으로 검색  3. 카테고리로 검색  4. 뒤로가기";
 
         while (true) {
-            int userChoice = ScannerUtil.nextInt(SCANNER, message,1,3);
-            if(userChoice ==1 || userChoice ==2){
+            int userChoice = ScannerUtil.nextInt(SCANNER, message,1,4);
+            if(userChoice ==1 || userChoice ==2 || userChoice ==3){
                 printMovie(userChoice);
 
-            } else if (userChoice==3) {
+            } else if (userChoice==4) {
                 showIndex();
             }
         }
@@ -93,16 +96,26 @@ public class MovieViewer {
 
             MovieController movieController = new MovieController(connection);
             list = movieController.selectName(name);
+        } else if (mode ==3) {
+            String message = "카테고리를 입력해 주세요\n" +
+                    "1. Action  2. Animation  3. Children  4. Classics  5. Comedy  6. Documentary  7. Drama  8. Family\n" +
+                    "9. Foreign  10. Games  11. Horror  12. Music  13. New  14. Sci-Fi  15. Sports 16. Travel";
+            String Category = category[ScannerUtil.nextInt(SCANNER,message,1,16)-1];
+
+
+            MovieController movieController = new MovieController(connection);
+            list = movieController.selectCategory(Category);
+
         }
         if (!list.isEmpty()){
             for (MovieDTO m : list){
 
                 System.out.printf("=영화 정보==================================================================================== NO. %d ==\n",m.getFilm_id());
-                System.out.printf("영화 제목 : %s  개봉 년도 : %d 영화 등급 : %s \n" +
+                System.out.printf("영화 제목 : %s  개봉 년도 : %d 영화 등급 : %s 카테고리 : %s\n" +
                                 "출연 배우 : %s\n" +
                         "대여 가능 기간 : %d 대여 비용 : %d \n" +
                                 "special_features : %s\n",
-                         m.getTitle(),m.getRelease_year(),m.getRating(),m.getActor_Name(),
+                         m.getTitle(),m.getRelease_year(),m.getRating(),m.getCategory(),m.getActor_Name(),
                         m.getRental_duration(), m.getRental_rate(),m.getSpecial_features());
                 System.out.println("=====================================================================================================");
             }
@@ -150,6 +163,13 @@ public class MovieViewer {
         String Rating = ratingList[ScannerUtil.nextInt(SCANNER,message,1,5)-1];
 
 
+        message = "카테고리를 입력해 주세요\n" +
+                "1.Action  2. Animation  3. Children  4. Classics  5. Comedy  6. Documentary  7. Drama  8. Family\n" +
+                "9. Foreign  10. Games  11. Horror  12. Music  13. New  14. Sci-Fi  15. Sports 16. Travel";
+        int category_id = ScannerUtil.nextInt(SCANNER,message,1,16) ;
+
+        String Category = category[category_id-1];
+
 
         String special_features ="";
 
@@ -175,6 +195,8 @@ public class MovieViewer {
             m.setRental_duration(Rental_duration);
             m.setRental_rate(Rental_rate);
             m.setRating(Rating);
+            m.setCategory(Category);
+            m.setCategory_id(category_id);
             m.setSpecial_features(special_features);
 
             movieController.update(m);
@@ -214,8 +236,19 @@ public class MovieViewer {
                 "1. G   2. PG  3. PG-13  4. R  5. NC-17";
         m.setRating(ratingList[ScannerUtil.nextInt(SCANNER,message,1,5)-1]);
 
-        String special_features ="";
 
+        message = "카테고리를 입력해 주세요\n" +
+                "1.Action  2. Animation  3. Children  4. Classics  5. Comedy  6. Documentary  7. Drama  8. Family\n" +
+                "9. Foreign  10. Games  11. Horror  12. Music  13. New  14. Sci-Fi  15. Sports 16. Travel";
+        int category_id = ScannerUtil.nextInt(SCANNER,message,1,16) ;
+        m.setCategory(category[category_id-1]);
+        m.setCategory_id(category_id);
+
+
+
+
+
+        String special_features ="";
 
         for(int i =0; i < special_featuresList.length;i++){
             message = "- special_features 입력 -\n" +special_featuresList[i]+"를 등록하시겠습니까? (Y/N) ";
@@ -279,6 +312,7 @@ public class MovieViewer {
             }
         }
         movieController.insertFilmActor(m);
+        movieController.insertCategory(m);
     }
 
     private void printAll() {
