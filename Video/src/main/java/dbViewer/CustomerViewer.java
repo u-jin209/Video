@@ -72,7 +72,7 @@ public class CustomerViewer {
         }
     }
 
-    private void printCustomer(int mode) {
+    public ArrayList<CustomerDTO> printCustomer(int mode) {
         ArrayList<CustomerDTO> list = null;
 
         if (mode ==1){
@@ -107,7 +107,7 @@ public class CustomerViewer {
 
 
 
-
+    return list;
     }
 
     private void delete(int id) {
