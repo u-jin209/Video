@@ -46,8 +46,6 @@ public class RentalViewer {
 
     private void rentalVideo() {
         RentalDTO r = new RentalDTO();
-        ArrayList<CustomerDTO> customerList = null;
-        CustomerController customerController = new CustomerController(connection);
 
         String message = "대여할 회원을 검색 하세요.\n" +
                 "1. 이름으로 검색  2. 이메일로 검색  3. 뒤로 가기";
@@ -55,10 +53,23 @@ public class RentalViewer {
         while (true) {
             int userChoice = ScannerUtil.nextInt(SCANNER, message,1,3);
             if(userChoice ==1 || userChoice ==2){
-                customerViewer.printCustomer(userChoice);
+                if(!customerViewer.printCustomer(userChoice)){
+                    message = "다시 검색하시겠습니까? Y/N";
+                    String yesNo = ScannerUtil.nextLine(SCANNER, message);
+                    if(yesNo.equalsIgnoreCase("Y")){
+                        customerViewer.printCustomer(userChoice);
+                    }else{
+                        showIndex();
+                    }
+                }else {
+                    message = "대여할 회원의 회원 번호를 입력하세요";
+                    r.setCustomer_id(ScannerUtil.nextInt(SCANNER,message));
 
-                message = "대여할 회원의 회원 번호를 입력하세요";
-                r.setCustomer_id(ScannerUtil.nextInt(SCANNER,message));
+
+
+                }
+
+
 
 
             } else if (userChoice==3) {

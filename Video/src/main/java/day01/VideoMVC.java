@@ -4,6 +4,7 @@ import dbConn.ConnectionMaker;
 import dbConn.MySqlConnectionMaker;
 import dbViewer.CustomerViewer;
 import dbViewer.MovieViewer;
+import dbViewer.RentalViewer;
 import util.ScannerUtil;
 
 import java.util.Scanner;
@@ -14,6 +15,7 @@ public class VideoMVC {
     private static ConnectionMaker connectionMaker= new MySqlConnectionMaker();
     private static CustomerViewer customerViewer=new CustomerViewer(connectionMaker);
     private static MovieViewer movieViewer = new MovieViewer(connectionMaker);
+    private static RentalViewer rentalViewer = new RentalViewer(connectionMaker);
 
     public static void main(String[] args) {
         scanner = new Scanner(System.in);
@@ -35,7 +37,7 @@ public class VideoMVC {
             } else if (choice ==2) {
                 movieViewer.showIndex();
             } else if (choice ==3) {
-                
+                rentalViewer.showIndex();
             } else if (choice == 4) {
                 System.out.println("사용해주셔서 감사합니다.");
                 break;

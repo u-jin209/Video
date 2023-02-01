@@ -72,7 +72,7 @@ public class CustomerViewer {
         }
     }
 
-    public ArrayList<CustomerDTO> printCustomer(int mode) {
+    public boolean printCustomer(int mode) {
         ArrayList<CustomerDTO> list = null;
 
         if (mode ==1){
@@ -103,11 +103,12 @@ public class CustomerViewer {
             }
         }else {
             System.out.println("회원을 찾을 수 없습니다.");
+            return false;
         }
 
 
 
-    return list;
+    return true;
     }
 
     private void delete(int id) {
